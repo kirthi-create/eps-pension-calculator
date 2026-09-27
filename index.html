@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f4e78">
+<title>EPS Pension on Higher Wages – Calculator</title>
+<style>
+:root{--blue:#1f4e78;--yellow:#fff200;--line:#d5dce2;--text:#17324a;--muted:#647481}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:var(--text);font-size:16px}
+.wrap{width:100%;max-width:760px;margin:auto;padding:8px}
+.top{background:#fff;padding:16px;border-radius:12px 12px 0 0;border-bottom:4px solid var(--blue)}
+h1{margin:0;color:var(--blue);font-size:20px;line-height:1.25}
+.sub{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.4}
+.section{margin-top:10px;padding:10px 12px;background:var(--blue);color:#fff;font-weight:700;border-radius:7px 7px 0 0}
+.card{background:#fff;border:1px solid var(--line);border-top:0;border-radius:0 0 7px 7px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 42%;border-bottom:1px solid var(--line);align-items:center}
+.row:last-child{border-bottom:0}
+.label{padding:10px;font-size:14px;line-height:1.3}
+.value{padding:7px 10px}
+input{width:100%;min-height:44px;border:1px solid #aeb9c2;border-radius:7px;padding:9px 10px;font-size:16px;color:#111;background:#fff}
+.input{background:var(--yellow);border-color:#bdb300;font-weight:600}
+.calc{background:#f0f0f0;font-weight:600}
+.result{background:#eef3f7;border:2px solid var(--blue);color:var(--blue);font-size:24px;font-weight:800}
+.note{padding:11px 12px;background:#fff9c9;color:#4d4900;font-size:12px;line-height:1.45}
+.formula{padding:11px 12px;font-size:12px;line-height:1.5;color:#3d4852}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+button{min-height:48px;border-radius:8px;font-size:16px;font-weight:700;padding:10px;cursor:pointer}
+.primary{border:0;background:var(--blue);color:#fff}
+.secondary{border:1px solid var(--blue);background:#fff;color:var(--blue)}
+.error{display:none;margin-top:10px;padding:10px 12px;border-radius:7px;background:#ffe8e8;color:#8b1e1e;font-size:13px}
+.foot{padding:12px 3px 4px;color:var(--muted);font-size:11px;line-height:1.45}
+@media(max-width:520px){
+ .row{grid-template-columns:1fr}
+ .label{padding-bottom:3px;font-weight:600}
+ .value{padding-top:3px;padding-bottom:9px}
+ .actions{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>EPS Pension on Higher Wages – Calculator</h1>
+    <div class="sub">Yellow cells are the only user inputs. All other values follow the supplied Excel workbook formulas.</div>
+  </div>
+
+  <div class="section">INPUTS</div>
+  <div class="card">
+    <div class="row"><div class="label">Date of Birth</div><div class="value"><input id="dob" class="input" type="date" value="1963-05-05"></div></div>
+    <div class="row"><div class="label">Date of Joining – CPCL</div><div class="value"><input id="doj" class="input" type="date" value="1988-04-25"></div></div>
+    <div class="row"><div class="label">Service start date (per EPFO record)</div><div class="value"><input id="serviceStart" class="input" type="date" value="1995-11-16"></div></div>
+    <div class="row"><div class="label">Date of Exit</div><div class="value"><input id="exitDate" class="calc" type="text" readonly></div></div>
+    <div class="row"><div class="label">Service end date (per EPFO record)</div><div class="value"><input id="serviceEnd" class="calc" type="text" readonly></div></div>
+    <div class="row"><div class="label">2 Year weightage benefit (Yes/No)</div><div class="value"><input id="weightage" class="calc" type="text" readonly></div></div>
+    <div class="row"><div class="label">Pensionable Salary – average wages from 01/09/2014 to exit (₹)</div><div class="value"><input id="salary" class="input" inputmode="decimal" value="148526"></div></div>
+    <div class="row"><div class="label">Maximum Monthly Wages ceiling used for pre-Sep-2014 period (₹)</div><div class="value"><input id="ceiling" class="input" inputmode="decimal" value="89392"></div></div>
+  </div>
+
+  <div class="section">SERVICE PERIODS</div>
+  <div class="card">
+    <div class="row"><div class="label">Past Service Days (DOJ to Service start date)</div><div class="value"><input id="pastDays" class="calc" type="text" readonly></div></div>
+    <div class="row"><div class="label">Weightage days applied (730 if Yes, else 0)</div><div class="value"><input id="weightDays" class="calc" type="text" readonly></div></div>
+    <div class="row"><div class="label">Pension service up to 31/08/2014 (days)</div><div class="value"><input id="preDays" class="calc" type="text" readonly></div></div>
+    <div class="row"><div class="label">Pension service up to 31/08/2014 incl. 2-year weightage (days)</div><div class="value"><input id="prePlusDays" class="calc" type="text" readonly></div></div>
+    <div class="row"><div class="label">Pensionable service from 01/09/2014 to Service end date (days)</div><div class="value"><input id="postDays" class="calc" type="text" readonly></div></div>
+  </div>
+
+  <div class="section">PENSION RESULT</div>
+  <div class="card">
+    <div class="row"><div class="label">Total Monthly Pension (₹)</div><div class="value"><input id="pension" class="result" type="text" readonly aria-live="polite"></div></div>
+    <div class="formula"><b>Exact workbook formula:</b><br>
+      Pension = INT[(B18 × B12) + (B19 × B11)] ÷ (70 × 365)
+    </div>
+  </div>
+
+  <div id="error" class="error" role="alert"></div>
+  <div class="actions">
+    <button id="calculate" class="primary" type="button">Calculate Pension</button>
+    <button id="whatsapp" class="secondary" type="button">Share Result on WhatsApp</button>
+  </div>
+
+  <div class="foot">
+    This mobile calculator reproduces the formulas in the supplied workbook. The EPFO portal's official result can differ if the underlying official records differ.
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+
+function parseDate(id){
+  const s=$(id).value;
+  if(!s) throw new Error("Please enter all yellow fields.");
+  const p=s.split("-").map(Number);
+  if(p.length!==3 || p.some(Number.isNaN)) throw new Error("Please enter valid dates.");
+  return new Date(Date.UTC(p[0],p[1]-1,p[2]));
+}
+function daysInMonth(y,m){return new Date(Date.UTC(y,m,0)).getUTCDate();}
+function isLeap(y){return y%4===0 && (y%100!==0 || y%400===0);}
+function lastDay(y,m){return daysInMonth(y,m);}
+function addMonthsExcel(d,n){
+  // Excel EDATE: preserve day when possible; if target month is shorter, use its last day.
+  const total=d.getUTCFullYear()*12+(d.getUTCMonth())+n;
+  const y=Math.floor(total/12), m=total%12;
+  const day=Math.min(d.getUTCDate(),daysInMonth(y,m+1));
+  return new Date(Date.UTC(y,m,day));
+}
+function eomonth(d,n){
+  const x=addMonthsExcel(new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1)),n+1);
+  return new Date(Date.UTC(x.getUTCFullYear(),x.getUTCMonth(),0));
+}
+function diffDays(a,b){return Math.round((b-a)/86400000);}
+function feb29Between(a,b){
+  for(let y=a.getUTCFullYear();y<=b.getUTCFullYear();y++){
+    if(isLeap(y)){
+      const x=new Date(Date.UTC(y,1,29));
+      if(x>=a && x<=b) return true;
+    }
+  }
+  return false;
+}
+// Excel YEARFRAC(start,end,1) Actual/Actual behavior.
+// The branching and averaging follow the documented Excel algorithm.
+function yearfrac1(a,b){
+  if(a>b){const t=a;a=b;b=t;}
+  if(a.getTime()===b.getTime()) return 0;
+  const appears =
+    a.getUTCFullYear()===b.getUTCFullYear() ||
+    (a.getUTCFullYear()+1===b.getUTCFullYear() &&
+     (a.getUTCMonth()>b.getUTCMonth() ||
+      (a.getUTCMonth()===b.getUTCMonth() && a.getUTCDate()>=b.getUTCDate())));
+  if(appears){
+    let denom;
+    if(a.getUTCFullYear()===b.getUTCFullYear() && isLeap(a.getUTCFullYear())) denom=366;
+    else if(feb29Between(a,b) || (b.getUTCMonth()===1 && b.getUTCDate()===29)) denom=366;
+    else denom=365;
+    return diffDays(a,b)/denom;
+  }
+  const nYears=b.getUTCFullYear()-a.getUTCFullYear()+1;
+  const totalDays=diffDays(
+    new Date(Date.UTC(a.getUTCFullYear(),0,1)),
+    new Date(Date.UTC(b.getUTCFullYear()+1,0,1))
+  );
+  return diffDays(a,b)/(totalDays/nYears);
+}
+function excelInt(x){return Math.trunc(x);}
+function excelRound(x){return Math.floor(x+0.5);}
+function serviceDaysFormula(a,b){
+  const yf=yearfrac1(a,b);
+  const years=excelInt(yf);
+  const months=excelInt((yf-years)*12);
+  const remainingMonths=((yf-years)*12)-months;
+  const days=excelRound(remainingMonths*30);
+  return years*365+months*30+days;
+}
+function fmt(d){
+  return String(d.getUTCDate()).padStart(2,"0")+"/"+String(d.getUTCMonth()+1).padStart(2,"0")+"/"+d.getUTCFullYear();
+}
+function num(id){
+  const v=Number(String($(id).value).replace(/,/g,"").trim());
+  if(!Number.isFinite(v) || v<0) throw new Error("Please enter valid salary values.");
+  return v;
+}
+function money(x){
+  return new Intl.NumberFormat("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}).format(x);
+}
+
+function calculate(){
+  const er=$("error"); er.style.display="none";
+  try{
+    const dob=parseDate("dob");
+    const doj=parseDate("doj");
+    const start=parseDate("serviceStart");
+    const salary=num("salary");
+    const ceiling=num("ceiling");
+
+    // B8 = EOMONTH(EDATE(B5,58*12),0)
+    const dobPlus58=addMonthsExcel(dob,696);
+    const exit=eomonth(dobPlus58,0);
+
+    // B9 = EDATE(B5,58*12)-1
+    const serviceEnd=new Date(dobPlus58.getTime()-86400000);
+
+    $("exitDate").value=fmt(exit);
+    $("serviceEnd").value=fmt(serviceEnd);
+
+    // B10 = IF(YEARFRAC(B7,B9,1)>20,"Yes","No")
+    const yfWeight=yearfrac1(start,serviceEnd);
+    const weightYes=yfWeight>20;
+    $("weightage").value=weightYes?"Yes":"No";
+
+    // B15 exact workbook formula
+    const past=serviceDaysFormula(doj,start);
+
+    // B16
+    const weight=weightYes?730:0;
+
+    // B17 exact workbook formula, including the +2
+    const cutoff=new Date(Date.UTC(2014,7,31));
+    const pre=serviceDaysFormula(start,cutoff)+2;
+
+    // B18
+    const prePlus=pre+weight;
+
+    // B19 = DAYS(B9,"01-09-2014")+1
+    const sep1=new Date(Date.UTC(2014,8,1));
+    const post=diffDays(sep1,serviceEnd)+1;
+
+    // B22 = INT((B18*B12)+(B19*B11))/(70*365)
+    const pensionNumerator=excelInt((prePlus*ceiling)+(post*salary));
+    const pension=pensionNumerator/(70*365);
+
+    $("pastDays").value=past.toLocaleString("en-IN");
+    $("weightDays").value=weight.toLocaleString("en-IN");
+    $("preDays").value=pre.toLocaleString("en-IN");
+    $("prePlusDays").value=prePlus.toLocaleString("en-IN");
+    $("postDays").value=post.toLocaleString("en-IN");
+    $("pension").value="₹ "+money(pension);
+
+    return {dob,doj,start,exit,serviceEnd,weightYes,salary,ceiling,past,weight,pre,prePlus,post,pension,pensionNumerator};
+  }catch(e){
+    er.textContent=e.message || "Please check the entered values.";
+    er.style.display="block";
+    return null;
+  }
+}
+
+["dob","doj","serviceStart","salary","ceiling"].forEach(id=>$(id).addEventListener("input",calculate));
+$("calculate").addEventListener("click",calculate);
+
+$("whatsapp").addEventListener("click",function(){
+  const r=calculate();
+  if(!r)return;
+  const msg=
+`EPS Pension on Higher Wages – Calculator
+
+Date of Birth: ${$("dob").value}
+Date of Joining: ${$("doj").value}
+Service Start Date: ${$("serviceStart").value}
+Date of Exit: ${$("exitDate").value}
+Service End Date: ${$("serviceEnd").value}
+2 Year Weightage: ${r.weightYes?"Yes":"No"}
+
+Pensionable Salary: ₹${money(r.salary)}
+Maximum Monthly Wages Ceiling: ₹${money(r.ceiling)}
+
+Past Service Days: ${r.past}
+Weightage Days: ${r.weight}
+Pension Service to 31/08/2014: ${r.pre}
+Pension Service incl. Weightage: ${r.prePlus}
+Post-01/09/2014 Service Days: ${r.post}
+
+Total Monthly Pension: ${$("pension").value}`;
+
+  const url="https://wa.me/?text="+encodeURIComponent(msg);
+  window.location.href=url;
+});
+
+calculate();
+})();
+</script>
+</body>
+</html>
